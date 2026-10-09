@@ -13,7 +13,7 @@ uniform vec4 colDiffuse;
 // Output fragment color
 out vec4 finalColor;
 
-// NOTE: Add here your custom variables
+// NOTE: Add your custom variables here
 
 #define     MAX_LIGHTS              4
 #define     LIGHT_DIRECTIONAL       0
@@ -37,6 +37,7 @@ struct Light {
 uniform Light lights[MAX_LIGHTS];
 uniform vec4 ambient;
 uniform vec3 viewPos;
+uniform vec4 fogColor;
 uniform float fogDensity;
 
 void main()
@@ -55,7 +56,7 @@ void main()
         if (lights[i].enabled == 1)
         {
             vec3 light = vec3(0.0);
-            
+
             if (lights[i].type == LIGHT_DIRECTIONAL) light = -normalize(lights[i].target - lights[i].position);
             if (lights[i].type == LIGHT_POINT) light = normalize(lights[i].position - fragPosition);
 
@@ -70,16 +71,12 @@ void main()
 
     finalColor = (texelColor*((colDiffuse + vec4(specular,1))*vec4(lightDot, 1.0)));
     finalColor += texelColor*(ambient/10.0);
-    
+
     // Gamma correction
     finalColor = pow(finalColor, vec4(1.0/2.2));
-    
+
     // Fog calculation
     float dist = length(viewPos - fragPosition);
-
-    // these could be parameters...
-    const vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
-    //const float fogDensity = 0.16;
 
     // Exponential fog
     float fogFactor = 1.0/exp((dist*fogDensity)*(dist*fogDensity));

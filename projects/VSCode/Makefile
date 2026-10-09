@@ -25,15 +25,14 @@
 
 # Define required raylib variables
 PROJECT_NAME       ?= game
-RAYLIB_VERSION     ?= 2.5.0
-RAYLIB_API_VERSION ?= 251
+RAYLIB_VERSION     ?= 5.1-dev
 RAYLIB_PATH        ?= ..\..
 
 # Define compiler path on Windows
-COMPILER_PATH      ?= C:/raylib/mingw/bin
+COMPILER_PATH      ?= C:/raylib/w64devkit/bin
 
 # Define default options
-# One of PLATFORM_DESKTOP, PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
+# One of PLATFORM_DESKTOP, PLATFORM_ANDROID, PLATFORM_WEB
 PLATFORM           ?= PLATFORM_DESKTOP
 
 # Locations of your newly installed library and associated headers. See ../src/Makefile
@@ -118,13 +117,12 @@ endif
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Emscripten required variables
-    EMSDK_PATH          ?= C:/emsdk
-    EMSCRIPTEN_VERSION  ?= 1.38.31
-    CLANG_VERSION       = e$(EMSCRIPTEN_VERSION)_64bit
-    PYTHON_VERSION      = 2.7.13.1_64bit\python-2.7.13.amd64
-    NODE_VERSION        = 8.9.1_64bit
-    export PATH         = $(EMSDK_PATH);$(EMSDK_PATH)\clang\$(CLANG_VERSION);$(EMSDK_PATH)\node\$(NODE_VERSION)\bin;$(EMSDK_PATH)\python\$(PYTHON_VERSION);$(EMSDK_PATH)\emscripten\$(EMSCRIPTEN_VERSION);C:\raylib\MinGW\bin:$$(PATH)
-    EMSCRIPTEN          = $(EMSDK_PATH)\emscripten\$(EMSCRIPTEN_VERSION)
+    EMSDK_PATH         ?= C:/raylib/emsdk
+    EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/upstream/emscripten
+    CLANG_PATH          = $(EMSDK_PATH)/upstream/bin
+    PYTHON_PATH         = $(EMSDK_PATH)/python/3.13.3_64bit
+    NODE_PATH           = $(EMSDK_PATH)/node/22.16.0_64bit/bin
+    export PATH         = $(EMSDK_PATH);$(EMSCRIPTEN_PATH);$(CLANG_PATH);$(NODE_PATH);$(PYTHON_PATH):$$(PATH)
 endif
 
 # Define raylib release directory for compiled library.
@@ -168,7 +166,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # HTML5 emscripten compiler
-    # WARNING: To compile to HTML5, code must be redesigned 
+    # WARNING: To compile to HTML5, code must be redesigned
     # to use emscripten.h and emscripten_set_main_loop()
     CC = emcc
 endif
@@ -178,6 +176,9 @@ MAKE = mingw32-make
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),LINUX)
+        MAKE = make
+    endif
+    ifeq ($(PLATFORM_OS),OSX)
         MAKE = make
     endif
 endif
@@ -224,21 +225,23 @@ endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # -Os                        # size optimization
     # -O2                        # optimization level 2, if used, also set --memory-init-file 0
-    # -s USE_GLFW=3              # Use glfw3 library (context/input management)
-    # -s ALLOW_MEMORY_GROWTH=1   # to allow memory resizing -> WARNING: Audio buffers could FAIL!
-    # -s TOTAL_MEMORY=16777216   # to specify heap memory size (default = 16MB)
-    # -s USE_PTHREADS=1          # multithreading support
-    # -s WASM=0                  # disable Web Assembly, emitted by default
-    # -s EMTERPRETIFY=1          # enable emscripten code interpreter (very slow)
-    # -s EMTERPRETIFY_ASYNC=1    # support synchronous loops by emterpreter
-    # -s FORCE_FILESYSTEM=1      # force filesystem to load/save files data
-    # -s ASSERTIONS=1            # enable runtime checks for common memory allocation errors (-O1 and above turn it off)
+    # -sUSE_GLFW=3               # Use glfw3 library (context/input management)
+    # -sALLOW_MEMORY_GROWTH=1    # to allow memory resizing -> WARNING: Audio buffers could FAIL!
+    # -sTOTAL_MEMORY=16777216    # to specify heap memory size (default = 16MB) (67108864 = 64MB)
+    # -sUSE_PTHREADS=1           # multithreading support
+    # -sWASM=0                   # disable Web Assembly, emitted by default
+    # -sASYNCIFY                 # lets synchronous C/C++ code interact with asynchronous JS
+    # -sFORCE_FILESYSTEM=1       # force filesystem to load/save files data
+    # -sASSERTIONS=1             # enable runtime checks for common memory allocation errors (-O1 and above turn it off)
+    # -sMINIFY_HTML=0            # minify generated html from shell.html
     # --profiling                # include information for code profiling
     # --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
     # --preload-file resources   # specify a resources folder for data compilation
-    CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 --preload-file resources
+    # --source-map-base          # allow debugging in browser with source map
+    # --shell-file shell.html    # define a custom shell .html and output extension
+    CFLAGS += -Os -sUSE_GLFW=3 -sTOTAL_MEMORY=16777216 --preload-file resources -sMINIFY_HTML=0
     ifeq ($(BUILD_MODE), DEBUG)
-        CFLAGS += -s ASSERTIONS=1 --profiling
+        CFLAGS += -sASSERTIONS=1 --profiling
     endif
 
     # Define a custom shell .html and output extension
@@ -295,19 +298,17 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
         # Libraries for Windows desktop compilation
         # NOTE: WinMM library required to set high-res timer resolution
         LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
-        # Required for physac examples
-        #LDLIBS += -static -lpthread
     endif
     ifeq ($(PLATFORM_OS),LINUX)
         # Libraries for Debian GNU/Linux desktop compiling
         # NOTE: Required packages: libegl1-mesa-dev
         LDLIBS = -lraylib -lGL -lm -lpthread -ldl -lrt
-        
+
         # On X11 requires also below libraries
         LDLIBS += -lX11
         # NOTE: It seems additional libraries are not required any more, latest GLFW just dlopen them
         #LDLIBS += -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor
-        
+
         # On Wayland windowing system, additional libraries requires
         ifeq ($(USE_WAYLAND_DISPLAY),TRUE)
             LDLIBS += -lwayland-client -lwayland-cursor -lwayland-egl -lxkbcommon
@@ -320,7 +321,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),OSX)
         # Libraries for OSX 10.9 desktop compiling
         # NOTE: Required packages: libopenal-dev libegl1-mesa-dev
-        LDLIBS = -lraylib -framework OpenGL -framework OpenAL -framework Cocoa
+        LDLIBS = -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo -framework QuartzCore
     endif
     ifeq ($(PLATFORM_OS),BSD)
         # Libraries for FreeBSD, OpenBSD, NetBSD, DragonFly desktop compiling
@@ -342,7 +343,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Libraries for web (HTML5) compiling
-    LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.bc
+    LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.web.a
 endif
 
 # Define a recursive wildcard function
@@ -353,13 +354,13 @@ SRC_DIR = src
 OBJ_DIR = obj
 
 # Define all object files from source files
-SRC = $(call rwildcard, *.c, *.h)
+SRC = $(call rwildcard, ./, *.c, *.h)
 #OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-OBJS = main.c
+OBJS = $(patsubst %.c,%.o,$(filter %.c,$(SRC)))
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)
-    MAKEFILE_PARAMS = -f Makefile.Android 
+    MAKEFILE_PARAMS = -f Makefile.Android
     export PROJECT_NAME
     export SRC_DIR
 else

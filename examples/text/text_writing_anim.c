@@ -1,16 +1,23 @@
 /*******************************************************************************************
 *
-*   raylib [text] example - Text Writing Animation
+*   raylib [text] example - writing anim
 *
-*   This example has been created using raylib 2.3 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
+*   Example complexity rating: [★★☆☆] 2/4
 *
-*   Copyright (c) 2016 Ramon Santamaria (@raysan5)
+*   Example originally created with raylib 1.4, last time updated with raylib 1.4
+*
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2016-2025 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
 #include "raylib.h"
 
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
 int main(void)
 {
     // Initialization
@@ -18,7 +25,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [text] example - text writing anim");
+    InitWindow(screenWidth, screenHeight, "raylib [text] example - writing anim");
 
     const char message[128] = "This sample illustrates a text writing\nanimation effect! Check it out! ;)";
 
@@ -47,7 +54,7 @@ int main(void)
             DrawText(TextSubtext(message, 0, framesCounter/10), 210, 160, 20, MAROON);
 
             DrawText("PRESS [ENTER] to RESTART!", 240, 260, 20, LIGHTGRAY);
-            DrawText("PRESS [SPACE] to SPEED UP!", 239, 300, 20, LIGHTGRAY);
+            DrawText("HOLD [SPACE] to SPEED UP!", 239, 300, 20, LIGHTGRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

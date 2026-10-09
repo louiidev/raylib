@@ -34,13 +34,10 @@ Thumbs.db
 
 [Bb]in
 [Dd]ebug/
-[Dd]ebug.win32/
-[Dd]ebug.DLL/
 *.sbr
 *.sdf
 obj/
 [R]elease/
-[Rr]elease.win32/
 _ReSharper*/
 [Tt]est[Rr]esult*
 ipch/
@@ -48,6 +45,7 @@ ipch/
 *.db
 *.opendb
 packages/
+!examples/models/resources/models/obj/
 
 # Ignore compiled binaries
 *.o
@@ -55,31 +53,28 @@ packages/
 *.a
 *.bc
 *.so
+*.so.*
+*.dll
+*.h.pch
+./*.obj
 
-# Ignore all examples files
-examples/*
-# Unignore all examples dirs
-!examples/*/
-# Unignore all examples files with extension
-!examples/*.c
-!examples/*.lua
-!examples/*.png
-# Unignore examples Makefile
-!examples/Makefile
-!examples/Makefile.Android
-!examples/raylib_compile_execute.bat
-!examples/raylib_makefile_example.bat
+# Ignore SDL libs for testing
+src/external/SDL2
+src/external/SDL3
 
-# Ignore all games files
-games/*
-# Unignore all games dirs
-!games/*/
-# Unignore all games files with extension
-!games/*.c
-!games/*.png
-# Unignore games makefile
-!games/Makefile
-!games/Makefile.Android
+# Emscripten
+emsdk
+
+# Ignore binaries generated in examples/
+examples/**/*
+!examples/**/*.*
+!examples/**/*/
+examples/**/*.exe
+examples/**/*.wasm
+examples/**/*.data
+examples/**/*.js
+examples/**/*.html
+examples/**/logs/*
 
 # Ignore files build by xcode
 *.mode*v*
@@ -95,27 +90,51 @@ xcschememanagement.plist
 xcuserdata/
 DerivedData/
 
+# VSCode project
+.vscode
+.clangd
+
 # Jetbrains project
 .idea/
-cmake-build-debug/
+cmake-build-*/
 
 # CMake stuff
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-TestingIfSymlinkWorks
 cmake_install.cmake
+cmake_uninstall.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 build
 
-# Unignore These makefiles...
-!examples/CMakeLists.txt
-!games/CMakeLists.txt
-
 # Ignore GNU global tags
 GPATH
 GRTAGS
 GTAGS
+
+# Zig programming language
+.zig-cache/
+zig-cache/
+zig-pkg/
+zig-out/
+build/
+build-*/
+docgen_tmp/
+
+# Tools stuff
+tools/rlparser/rlparser.exe
+tools/rlparser/rlparser
+tools/rexm/rexm.exe
+tools/rexm/rexm
+
+# CI
+emsdk-cache/
+raylib.com/
+
+# Wayland files
+src/*protocol.h
+src/*protocol-code.h
+src/*protocol-code.c

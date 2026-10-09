@@ -1,15 +1,17 @@
 /*******************************************************************************************
 *
-*   raylib [models] example - Show the difference between perspective and orthographic projection
+*   raylib [models] example - orthographic projection
 *
-*   This program is heavily based on the geometric objects example
+*   Example complexity rating: [★☆☆☆] 1/4
 *
-*   This example has been created using raylib 2.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
+*   Example originally created with raylib 2.0, last time updated with raylib 3.7
 *
 *   Example contributed by Max Danielsson (@autious) and reviewed by Ramon Santamaria (@raysan5)
 *
-*   Copyright (c) 2018 Max Danielsson (@autious) and Ramon Santamaria (@raysan5)
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2018-2025 Max Danielsson (@autious) and Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
@@ -18,6 +20,9 @@
 #define FOVY_PERSPECTIVE    45.0f
 #define WIDTH_ORTHOGRAPHIC  10.0f
 
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
 int main(void)
 {
     // Initialization
@@ -25,7 +30,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [models] example - geometric shapes");
+    InitWindow(screenWidth, screenHeight, "raylib [models] example - orthographic projection");
 
     // Define the camera to look into our 3d world
     Camera camera = { { 0.0f, 10.0f, 10.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, FOVY_PERSPECTIVE, CAMERA_PERSPECTIVE };
@@ -40,15 +45,15 @@ int main(void)
         //----------------------------------------------------------------------------------
         if (IsKeyPressed(KEY_SPACE))
         {
-            if (camera.type == CAMERA_PERSPECTIVE)
+            if (camera.projection == CAMERA_PERSPECTIVE)
             {
                 camera.fovy = WIDTH_ORTHOGRAPHIC;
-                camera.type = CAMERA_ORTHOGRAPHIC;
+                camera.projection = CAMERA_ORTHOGRAPHIC;
             }
             else
             {
                 camera.fovy = FOVY_PERSPECTIVE;
-                camera.type = CAMERA_PERSPECTIVE;
+                camera.projection = CAMERA_PERSPECTIVE;
             }
         }
         //----------------------------------------------------------------------------------
@@ -81,8 +86,8 @@ int main(void)
 
             DrawText("Press Spacebar to switch camera type", 10, GetScreenHeight() - 30, 20, DARKGRAY);
 
-            if (camera.type == CAMERA_ORTHOGRAPHIC) DrawText("ORTHOGRAPHIC", 10, 40, 20, BLACK);
-            else if (camera.type == CAMERA_PERSPECTIVE) DrawText("PERSPECTIVE", 10, 40, 20, BLACK);
+            if (camera.projection == CAMERA_ORTHOGRAPHIC) DrawText("ORTHOGRAPHIC", 10, 40, 20, BLACK);
+            else if (camera.projection == CAMERA_PERSPECTIVE) DrawText("PERSPECTIVE", 10, 40, 20, BLACK);
 
             DrawFPS(10, 10);
 

@@ -454,7 +454,7 @@ static void parseFloat3(float *x, float *y, float *z, const char **token) {
 }
 
 static unsigned int my_strnlen(const char *s, unsigned int n) {
-    const char *p = memchr(s, 0, n);
+    const char *p = (const char *)memchr(s, 0, n);
     return p ? (unsigned int)(p - s) : n;
 }
 
@@ -746,9 +746,9 @@ static int tinyobj_parse_and_index_mtl_file(tinyobj_material_t **materials_out,
   (*materials_out) = NULL;
   (*num_materials_out) = 0;
 
-  fp = fopen(filename, "r");
+  fp = fopen(filename, "rt");
   if (!fp) {
-    //fprintf(stderr, "TINYOBJ: Error reading file '%s': %s (%d)\n", filename, strerror(errno), errno);     // @raysan5: commented
+    fprintf(stderr, "TINYOBJ: Error reading file '%s': %s (%d)\n", filename, strerror(errno), errno);
     return TINYOBJ_ERROR_FILE_OPERATION;
   }
 
@@ -948,6 +948,8 @@ static int tinyobj_parse_and_index_mtl_file(tinyobj_material_t **materials_out,
     /* @todo { unknown parameter } */
   }
 
+  fclose(fp);
+
   if (material.name) {
     /* Flush last material element */
     materials = tinyobj_material_add(materials, num_materials, &material);
@@ -1018,7 +1020,12 @@ static int parseLine(Command *command, const char *p, unsigned int p_len,
                      int triangulate) {
   char linebuf[4096];
   const char *token;
-  assert(p_len < 4095);
+  
+  // @raysan5: 
+  // WARNING: If -DNDEBUG is set when compiling, assertions will not 
+  // be present in the compiled binary, replacing by a runtime check
+  //assert(p_len < 4095);
+  if (p_len > 4095) return 0;
 
   memcpy(linebuf, p, p_len);
   linebuf[p_len] = '\0';
@@ -1100,8 +1107,12 @@ static int parseLine(Command *command, const char *p, unsigned int p_len,
       tinyobj_vertex_index_t i1;
       tinyobj_vertex_index_t i2 = f[1];
 
-      assert(3 * num_f < TINYOBJ_MAX_FACES_PER_F_LINE);
-
+      // @raysan5: 
+      // WARNING: If -DNDEBUG is set when compiling, assertions will not 
+      // be present in the compiled binary, replacing by a runtime check
+      //assert(3 * num_f < TINYOBJ_MAX_FACES_PER_F_LINE);
+      if (3*num_f > TINYOBJ_MAX_FACES_PER_F_LINE) return 0;
+      
       for (k = 2; k < num_f; k++) {
         i1 = i2;
         i2 = f[k];
@@ -1117,7 +1128,13 @@ static int parseLine(Command *command, const char *p, unsigned int p_len,
 
     } else {
       unsigned int k = 0;
-      assert(num_f < TINYOBJ_MAX_FACES_PER_F_LINE);
+      
+      // @raysan5: 
+      // WARNING: If -DNDEBUG is set when compiling, assertions will not 
+      // be present in the compiled binary, replacing by a runtime check
+      //assert(num_f < TINYOBJ_MAX_FACES_PER_F_LINE);
+      if (num_f > TINYOBJ_MAX_FACES_PER_F_LINE) return 0;     
+      
       for (k = 0; k < num_f; k++) {
         command->f[k] = f[k];
       }
@@ -1267,6 +1284,11 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
       if (is_line_ending(buf, i, end_idx)) {
         line_infos[line_no].pos = prev_pos;
         line_infos[line_no].len = i - prev_pos;
+         
+// ---- QUICK BUG FIX : https://github.com/raysan5/raylib/issues/3473
+        if ( i > 0 && buf[i-1] == '\r' ) line_infos[line_no].len--;
+// --------
+
         prev_pos = i + 1;
         line_no++;
       }
@@ -1321,7 +1343,7 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
 
     if (ret != TINYOBJ_SUCCESS) {
       /* warning. */
-      //fprintf(stderr, "TINYOBJ: Failed to parse material file '%s': %d\n", filename, ret);     // @raysan5: commented
+      fprintf(stderr, "TINYOBJ: Failed to parse material file '%s': %d\n", filename, ret);
     }
 
     TINYOBJ_FREE(filename);
@@ -1377,7 +1399,7 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
           /* Create a null terminated string */
           char* material_name_null_term = (char*) TINYOBJ_MALLOC(commands[i].material_name_len + 1);
           memcpy((void*) material_name_null_term, (const void*) commands[i].material_name, commands[i].material_name_len);
-          material_name_null_term[commands[i].material_name_len - 1] = 0;
+          material_name_null_term[commands[i].material_name_len] = 0;
 
           if (hash_table_exists(material_name_null_term, &material_table))
             material_id = (int)hash_table_get(material_name_null_term, &material_table);

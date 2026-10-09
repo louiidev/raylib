@@ -1,16 +1,23 @@
 /*******************************************************************************************
 *
-*   raylib [text] example - Text formatting
+*   raylib [text] example - format text
 *
-*   This example has been created using raylib 1.1 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
+*   Example complexity rating: [★☆☆☆] 1/4
 *
-*   Copyright (c) 2014 Ramon Santamaria (@raysan5)
+*   Example originally created with raylib 1.1, last time updated with raylib 3.0
+*
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2014-2025 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
 #include "raylib.h"
 
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
 int main(void)
 {
     // Initialization
@@ -18,7 +25,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [text] example - text formatting");
+    InitWindow(screenWidth, screenHeight, "raylib [text] example - format text");
 
     int score = 100020;
     int hiscore = 200450;
@@ -41,13 +48,13 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawText(FormatText("Score: %08i", score), 200, 80, 20, RED);
+            DrawText(TextFormat("Score: %08i", score), 200, 80, 20, RED);
 
-            DrawText(FormatText("HiScore: %08i", hiscore), 200, 120, 20, GREEN);
+            DrawText(TextFormat("HiScore: %08i", hiscore), 200, 120, 20, GREEN);
 
-            DrawText(FormatText("Lives: %02i", lives), 200, 160, 40, BLUE);
+            DrawText(TextFormat("Lives: %02i", lives), 200, 160, 40, BLUE);
 
-            DrawText(FormatText("Elapsed Time: %02.02f ms", GetFrameTime()*1000), 200, 220, 20, BLACK);
+            DrawText(TextFormat("Elapsed Time: %02.02f ms", GetFrameTime()*1000), 200, 220, 20, BLACK);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

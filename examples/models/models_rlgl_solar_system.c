@@ -1,18 +1,24 @@
 /*******************************************************************************************
 *
-*   raylib [models] example - rlgl module usage with push/pop matrix transformations
+*   raylib [models] example - rlgl solar system
 *
-*   This example uses [rlgl] module funtionality (pseudo-OpenGL 1.1 style coding)
+*   Example complexity rating: [★★★★] 4/4
 *
-*   This example has been created using raylib 2.5 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
+*   NOTE: This example uses [rlgl] module functionality (pseudo-OpenGL 1.1 style coding)
 *
-*   Copyright (c) 2018 Ramon Santamaria (@raysan5)
+*   Example originally created with raylib 2.5, last time updated with raylib 4.0
+*
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2018-2025 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
 #include "raylib.h"
 #include "rlgl.h"
+
+#include <math.h>           // Required for: cosf(), sinf()
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -35,17 +41,15 @@ int main(void)
     const float moonRadius = 0.16f;
     const float moonOrbitRadius = 1.5f;
 
-    InitWindow(screenWidth, screenHeight, "raylib [models] example - rlgl module usage with push/pop matrix transformations");
+    InitWindow(screenWidth, screenHeight, "raylib [models] example - rlgl solar system");
 
     // Define the camera to look into our 3d world
     Camera camera = { 0 };
-    camera.position = (Vector3){ 16.0f, 16.0f, 16.0f };
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 45.0f;
-    camera.type = CAMERA_PERSPECTIVE;
-
-    SetCameraMode(camera, CAMERA_FREE);
+    camera.position = (Vector3){ 16.0f, 16.0f, 16.0f }; // Camera position
+    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    camera.fovy = 45.0f;                                // Camera field-of-view Y
+    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
 
     float rotationSpeed = 0.2f;         // General system rotation speed
 
@@ -62,8 +66,6 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        UpdateCamera(&camera);
-
         earthRotation += (5.0f*rotationSpeed);
         earthOrbitRotation += (365/360.0f*(5.0f*rotationSpeed)*rotationSpeed);
         moonRotation += (2.0f*rotationSpeed);
@@ -86,7 +88,6 @@ int main(void)
                 rlPushMatrix();
                     rlRotatef(earthOrbitRotation, 0.0f, 1.0f, 0.0f);    // Rotation for Earth orbit around Sun
                     rlTranslatef(earthOrbitRadius, 0.0f, 0.0f);         // Translation for Earth orbit
-                    rlRotatef(-earthOrbitRotation, 0.0f, 1.0f, 0.0f);   // Rotation for Earth orbit around Sun inverted
 
                     rlPushMatrix();
                         rlRotatef(earthRotation, 0.25, 1.0, 0.0);       // Rotation for Earth itself
@@ -97,7 +98,6 @@ int main(void)
 
                     rlRotatef(moonOrbitRotation, 0.0f, 1.0f, 0.0f);     // Rotation for Moon orbit around Earth
                     rlTranslatef(moonOrbitRadius, 0.0f, 0.0f);          // Translation for Moon orbit
-                    rlRotatef(-moonOrbitRotation, 0.0f, 1.0f, 0.0f);    // Rotation for Moon orbit around Earth inverted
                     rlRotatef(moonRotation, 0.0f, 1.0f, 0.0f);          // Rotation for Moon itself
                     rlScalef(moonRadius, moonRadius, moonRadius);       // Scale Moon
 
@@ -126,15 +126,18 @@ int main(void)
 }
 
 //--------------------------------------------------------------------------------------------
-// Module Functions Definitions (local)
+// Module Functions Definition
 //--------------------------------------------------------------------------------------------
-
 // Draw sphere without any matrix transformation
 // NOTE: Sphere is drawn in world position ( 0, 0, 0 ) with radius 1.0f
 void DrawSphereBasic(Color color)
 {
     int rings = 16;
     int slices = 16;
+
+    // Make sure there is enough space in the internal render batch
+    // buffer to store all required vertex, batch is reseted if required
+    rlCheckRenderBatchLimit((rings + 2)*slices*6);
 
     rlBegin(RL_TRIANGLES);
         rlColor4ub(color.r, color.g, color.b, color.a);
@@ -143,25 +146,25 @@ void DrawSphereBasic(Color color)
         {
             for (int j = 0; j < slices; j++)
             {
-                rlVertex3f(cosf(DEG2RAD*(270+(180/(rings + 1))*i))*sinf(DEG2RAD*(j*360/slices)),
-                           sinf(DEG2RAD*(270+(180/(rings + 1))*i)),
-                           cosf(DEG2RAD*(270+(180/(rings + 1))*i))*cosf(DEG2RAD*(j*360/slices)));
-                rlVertex3f(cosf(DEG2RAD*(270+(180/(rings + 1))*(i+1)))*sinf(DEG2RAD*((j+1)*360/slices)),
-                           sinf(DEG2RAD*(270+(180/(rings + 1))*(i+1))),
-                           cosf(DEG2RAD*(270+(180/(rings + 1))*(i+1)))*cosf(DEG2RAD*((j+1)*360/slices)));
-                rlVertex3f(cosf(DEG2RAD*(270+(180/(rings + 1))*(i+1)))*sinf(DEG2RAD*(j*360/slices)),
-                           sinf(DEG2RAD*(270+(180/(rings + 1))*(i+1))),
-                           cosf(DEG2RAD*(270+(180/(rings + 1))*(i+1)))*cosf(DEG2RAD*(j*360/slices)));
+                rlVertex3f(cosf(DEG2RAD*(270+(180.0f/(rings + 1))*i))*sinf(DEG2RAD*(j*360.0f/slices)),
+                           sinf(DEG2RAD*(270+(180.0f/(rings + 1))*i)),
+                           cosf(DEG2RAD*(270+(180.0f/(rings + 1))*i))*cosf(DEG2RAD*(j*360.0f/slices)));
+                rlVertex3f(cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1)))*sinf(DEG2RAD*((j+1)*360.0f/slices)),
+                           sinf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1))),
+                           cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1)))*cosf(DEG2RAD*((j+1)*360.0f/slices)));
+                rlVertex3f(cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1)))*sinf(DEG2RAD*(j*360.0f/slices)),
+                           sinf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1))),
+                           cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1)))*cosf(DEG2RAD*(j*360.0f/slices)));
 
-                rlVertex3f(cosf(DEG2RAD*(270+(180/(rings + 1))*i))*sinf(DEG2RAD*(j*360/slices)),
-                           sinf(DEG2RAD*(270+(180/(rings + 1))*i)),
-                           cosf(DEG2RAD*(270+(180/(rings + 1))*i))*cosf(DEG2RAD*(j*360/slices)));
-                rlVertex3f(cosf(DEG2RAD*(270+(180/(rings + 1))*(i)))*sinf(DEG2RAD*((j+1)*360/slices)),
-                           sinf(DEG2RAD*(270+(180/(rings + 1))*(i))),
-                           cosf(DEG2RAD*(270+(180/(rings + 1))*(i)))*cosf(DEG2RAD*((j+1)*360/slices)));
-                rlVertex3f(cosf(DEG2RAD*(270+(180/(rings + 1))*(i+1)))*sinf(DEG2RAD*((j+1)*360/slices)),
-                           sinf(DEG2RAD*(270+(180/(rings + 1))*(i+1))),
-                           cosf(DEG2RAD*(270+(180/(rings + 1))*(i+1)))*cosf(DEG2RAD*((j+1)*360/slices)));
+                rlVertex3f(cosf(DEG2RAD*(270+(180.0f/(rings + 1))*i))*sinf(DEG2RAD*(j*360.0f/slices)),
+                           sinf(DEG2RAD*(270+(180.0f/(rings + 1))*i)),
+                           cosf(DEG2RAD*(270+(180.0f/(rings + 1))*i))*cosf(DEG2RAD*(j*360.0f/slices)));
+                rlVertex3f(cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i)))*sinf(DEG2RAD*((j+1)*360.0f/slices)),
+                           sinf(DEG2RAD*(270+(180.0f/(rings + 1))*(i))),
+                           cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i)))*cosf(DEG2RAD*((j+1)*360.0f/slices)));
+                rlVertex3f(cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1)))*sinf(DEG2RAD*((j+1)*360.0f/slices)),
+                           sinf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1))),
+                           cosf(DEG2RAD*(270+(180.0f/(rings + 1))*(i+1)))*cosf(DEG2RAD*((j+1)*360.0f/slices)));
             }
         }
     rlEnd();

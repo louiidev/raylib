@@ -1,25 +1,33 @@
 /*******************************************************************************************
 *
-*   raylib [text] example - Sprite font loading
+*   raylib [text] example - font spritefont
 *
-*   Loaded sprite fonts have been generated following XNA SpriteFont conventions:
+*   Example complexity rating: [★☆☆☆] 1/4
+*
+*   NOTE: Sprite fonts should be generated following this conventions:
+*
 *     - Characters must be ordered starting with character 32 (Space)
 *     - Every character must be contained within the same Rectangle height
-*     - Every character and every line must be separated the same distance
+*     - Every character and every line must be separated by the same distance (margin/padding)
 *     - Rectangles must be defined by a MAGENTA color background
 *
-*   If following this constraints, a font can be provided just by an image, 
-*   this is quite handy to avoid additional information files (like BMFonts use). 
+*   Following those constraints, a font can be provided just by an image,
+*   this is quite handy to avoid additional font descriptor files (like BMFonts use)
 *
-*   This example has been created using raylib 1.0 (www.raylib.com)
-*   raylib is licensed under an unmodified zlib/libpng license (View raylib.h for details)
+*   Example originally created with raylib 1.0, last time updated with raylib 1.0
 *
-*   Copyright (c) 2014 Ramon Santamaria (@raysan5)
+*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
+*   BSD-like license that allows static linking with closed source software
+*
+*   Copyright (c) 2014-2025 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
 #include "raylib.h"
 
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
 int main(void)
 {
     // Initialization
@@ -27,7 +35,7 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [text] example - sprite font loading");
+    InitWindow(screenWidth, screenHeight, "raylib [text] example - font spritefont");
 
     const char msg1[50] = "THIS IS A custom SPRITE FONT...";
     const char msg2[50] = "...and this is ANOTHER CUSTOM font...";
@@ -38,14 +46,14 @@ int main(void)
     Font font2 = LoadFont("resources/custom_alagard.png");        // Font loading
     Font font3 = LoadFont("resources/custom_jupiter_crash.png");  // Font loading
 
-    Vector2 fontPosition1 = { screenWidth/2 - MeasureTextEx(font1, msg1, font1.baseSize, -3).x/2,
-                              screenHeight/2 - font1.baseSize/2 - 80 };
+    Vector2 fontPosition1 = { screenWidth/2.0f - MeasureTextEx(font1, msg1, (float)font1.baseSize, -3).x/2,
+                              screenHeight/2.0f - font1.baseSize/2.0f - 80.0f };
 
-    Vector2 fontPosition2 = { screenWidth/2 - MeasureTextEx(font2, msg2, font2.baseSize, -2).x/2,
-                              screenHeight/2 - font2.baseSize/2 - 10 };
+    Vector2 fontPosition2 = { screenWidth/2.0f - MeasureTextEx(font2, msg2, (float)font2.baseSize, -2.0f).x/2.0f,
+                              screenHeight/2.0f - font2.baseSize/2.0f - 10.0f };
 
-    Vector2 fontPosition3 = { screenWidth/2 - MeasureTextEx(font3, msg3, font3.baseSize, 2).x/2,
-                              screenHeight/2 - font3.baseSize/2 + 50 };
+    Vector2 fontPosition3 = { screenWidth/2.0f - MeasureTextEx(font3, msg3, (float)font3.baseSize, 2.0f).x/2.0f,
+                              screenHeight/2.0f - font3.baseSize/2.0f + 50.0f };
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -64,9 +72,9 @@ int main(void)
 
             ClearBackground(RAYWHITE);
 
-            DrawTextEx(font1, msg1, fontPosition1, font1.baseSize, -3, WHITE);
-            DrawTextEx(font2, msg2, fontPosition2, font2.baseSize, -2, WHITE);
-            DrawTextEx(font3, msg3, fontPosition3, font3.baseSize, 2, WHITE);
+            DrawTextEx(font1, msg1, fontPosition1, (float)font1.baseSize, -3, WHITE);
+            DrawTextEx(font2, msg2, fontPosition2, (float)font2.baseSize, -2, WHITE);
+            DrawTextEx(font3, msg3, fontPosition3, (float)font3.baseSize, 2, WHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
